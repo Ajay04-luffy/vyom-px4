@@ -16,10 +16,10 @@ param set-default SENS_IMU_MODE 0
 # DShot600 on all four motor outputs (TIM1).
 param set-default PWM_MAIN_TIM0 -3
 
-# SoC link on USART2 (/dev/ttyS1, 3 Mbaud, RTS/CTS). Until vyom_soc_link (WP2) exists,
-# run MAVLink there in onboard mode so the SoC can already talk to the FC.
-param set-default MAV_0_CONFIG 101
-param set-default MAV_0_MODE 2
+# SoC link on USART2 (/dev/ttyS1, 3 Mbaud, RTS/CTS): our /proto link (vyom_soc_link), not MAVLink.
+# NEEDS-SW: ground-station MAVLink then has no path to the FC until the SoC tunnels it (plan WP7).
+param set-default MAV_0_CONFIG 0
+param set-default VYM_SOC_CFG 101
 param set-default SER_TEL1_BAUD 3000000
 
 # No SD card on the FC: missions in RAM, logging off until ULog streams to the SoC (WP9).

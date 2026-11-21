@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# vyom core-v1 extra startup (after the main modules).
+#------------------------------------------------------------------------------
+
+# External watchdog: kicks only while gyro and rate controller are alive (vyom_wdt).
+vyom_wdt start
