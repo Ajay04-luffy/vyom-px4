@@ -32,3 +32,6 @@ Owner: **SW**. Decision record: `/docs/adr/0005-px4-fork-base-and-hosting.md` in
 
 ## Contributing back
 Generic fixes and drivers (not our protocols, not product behaviour) may be offered upstream as normal PX4 PRs once SW agrees. Nothing that reveals product plans goes upstream.
+
+## Enabling Vyom modules
+Vyom modules use `default y if PLATFORM_POSIX` in their `Kconfig`, so SITL and the unit-test build include them **without editing upstream board files**. NuttX boards enable them explicitly in `boards/vyom/*/default.px4board`.

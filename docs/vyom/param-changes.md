@@ -34,7 +34,8 @@ These only affect the simulator, not a real drone. They describe our sub-250 g X
 | `EKF2_MULTI_IMU` | 0 | 2 | Two IMUs (BMI088 + ICM-42688-P): run one estimator per IMU and pick the healthy one |
 | `SENS_IMU_MODE` | 1 | 0 | Required by `EKF2_MULTI_IMU` > 0 |
 | `PWM_MAIN_TIM0` | 400 Hz PWM | -3 (DShot600) | ESCs speak DShot only |
-| `MAV_0_CONFIG` / `MAV_0_MODE` | TELEM1 / normal | 101 / onboard | MAVLink to the Vision SoC on USART2 until the `/proto` link replaces it (WP7) |
+| `MAV_0_CONFIG` | TELEM1 | 0 (off) | USART2 to the SoC now runs our `/proto` link instead of MAVLink (WP2). NEEDS-SW: ground-station MAVLink needs a tunnel through the SoC (WP7) |
+| `VYM_SOC_CFG` | 0 | 101 (TELEM1) | Starts `vyom_soc_link` on USART2 |
 | `SER_TEL1_BAUD` | 57600 | 3000000 | FC↔SoC UART runs at 3 Mbaud (CLAUDE.md) |
 | `SYS_DM_BACKEND` | 0 (file) | 1 (RAM) | No SD card; mission storage lives in RAM. NEEDS-SW: missions are lost on reboot |
 | `SDLOG_MODE` | 0 | -1 (off) | No SD card; flight logs stream to the SoC instead (WP7). NEEDS-SW |
@@ -44,3 +45,10 @@ These only affect the simulator, not a real drone. They describe our sub-250 g X
 |---|---|---|---|
 | `MAV_0_MODE` | normal | 2 (onboard) | Companion computer link on TELEM1. TODO(verify) wiring |
 | `SER_TEL1_BAUD` | 57600 | 921600 | Companion link speed |
+
+## New Vyom parameters
+| Param | Default | Module | Meaning |
+|---|---|---|---|
+| `VYM_SOC_CFG` | 0 (off) | `vyom_soc_link` | Serial port of the SoC link (core-v1 sets TELEM1) |
+| `VYM_SOC_TOUT` | 0.5 s | `vyom_soc_link` | No SoC heartbeat for this long = SoC lost (`vyom_soc_status.soc_alive`). SoC sends at 10 Hz, so 5 missed beats |
+| `VYM_WDT_KICK_MS` | 100 ms | `vyom_wdt` | External watchdog kick period. TODO(verify) against the watchdog part's window (NEEDS-EE) |
