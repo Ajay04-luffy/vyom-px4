@@ -31,9 +31,15 @@ jobs:
       - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Build
         run: make ${{ matrix.target }}
-      - name: Vyom code checks (no dynamic allocation, clang-tidy)
+      - name: Install cppcheck
+        if: matrix.target == 'px4_sitl_default'
+        run: apt-get update && apt-get install -y --no-install-recommends cppcheck
+      - name: Vyom code checks (no dynamic allocation, clang-tidy, cppcheck)
         if: matrix.target == 'px4_sitl_default'
         run: Tools/vyom/check_vyom_code.sh build/px4_sitl_default
+      - name: Vyom unit tests on the host (sanitizers)
+        if: matrix.target == 'px4_sitl_default'
+        run: Tools/vyom/run_host_tests.sh
       - uses: actions/upload-artifact@v4
         if: matrix.target == 'px4_sitl_default'
         with:

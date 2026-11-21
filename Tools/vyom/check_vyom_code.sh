@@ -4,6 +4,7 @@
 #     allowed only inside a function whose name ends in "init" / "Init" / constructor, and the
 #     line must carry the marker "// vyom-alloc-ok: <reason>".
 #  2. clang-tidy over Vyom C/C++ files that the given build compiles (use the SITL build).
+#  3. cppcheck over the same files (CI installs it; skipped with a warning if missing).
 # Usage: Tools/vyom/check_vyom_code.sh [build_dir]   (default build/px4_sitl_default)
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -38,9 +39,22 @@ PY
 )
   echo "clang-tidy on ${#SRCS[@]} file(s) compiled in $BUILD_DIR"
   if [ "${#SRCS[@]}" -gt 0 ]; then
-    clang-tidy -p "$BUILD_DIR" --quiet --warnings-as-errors='*' "${SRCS[@]}" || fail=1
+    # PX4's .clang-tidy enables '*' minus a list written for an older clang-tidy. Checks added in
+    # newer LLVM fire on PX4's own conventions, not on our logic, so we switch them off here only:
+    #   misc-include-cleaner (PX4 relies on transitive includes), cppcoreguidelines-avoid-do-while
+    #   (inside PX4_INFO/PX4_ERR macros), readability-identifier-length (PX4 style uses short locals).
+    EXTRA='-misc-include-cleaner,-cppcoreguidelines-avoid-do-while,-readability-identifier-length'
+    clang-tidy -p "$BUILD_DIR" --quiet --extra-arg=-Wno-unknown-warning-option --extra-arg=-Wno-ignored-optimization-argument --checks="$EXTRA" --warnings-as-errors='*' "${SRCS[@]}" || fail=1
   fi
 else
   echo "WARN: clang-tidy or $BUILD_DIR/compile_commands.json missing; skipped clang-tidy"
+fi
+# 3. cppcheck
+if command -v cppcheck >/dev/null; then
+  cppcheck --quiet --error-exitcode=1 --enable=warning,performance,portability --std=c++17 --inline-suppr \
+    -I src/drivers/vyom_soc_link -I src/drivers/vyom_wdt \
+    $(printf '%s\n' "${FILES[@]}" | grep -E '^src/.*\.(c|cpp)$') || fail=1
+else
+  echo "WARN: cppcheck missing; skipped (CI runs it)"
 fi
 exit $fail
