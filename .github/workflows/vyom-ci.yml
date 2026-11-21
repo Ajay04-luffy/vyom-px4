@@ -24,8 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # WP1 adds: vyom_proto0_default, vyom_core-v1_default
-        target: [px4_sitl_default]
+        target: [px4_sitl_default, vyom_proto0_default, vyom_core-v1_default]
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0, submodules: recursive}
@@ -33,7 +32,8 @@ jobs:
       - name: Build
         run: make ${{ matrix.target }}
       - name: Vyom code checks (no dynamic allocation, clang-tidy)
-        run: Tools/vyom/check_vyom_code.sh build/${{ matrix.target }}
+        if: matrix.target == 'px4_sitl_default'
+        run: Tools/vyom/check_vyom_code.sh build/px4_sitl_default
       - uses: actions/upload-artifact@v4
         if: matrix.target == 'px4_sitl_default'
         with:

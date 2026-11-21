@@ -3,7 +3,7 @@
 #  1. No dynamic allocation in flight-critical Vyom modules (CLAUDE.md rule 3). Allocation is
 #     allowed only inside a function whose name ends in "init" / "Init" / constructor, and the
 #     line must carry the marker "// vyom-alloc-ok: <reason>".
-#  2. clang-tidy over Vyom C/C++ files, using the compile_commands.json of a build dir.
+#  2. clang-tidy over Vyom C/C++ files that the given build compiles (use the SITL build).
 # Usage: Tools/vyom/check_vyom_code.sh [build_dir]   (default build/px4_sitl_default)
 set -euo pipefail
 cd "$(dirname "$0")/../.."
@@ -24,9 +24,19 @@ if grep -nE '\b(malloc|calloc|realloc|free)\s*\(|\bnew\s+[A-Za-z_]|\bdelete\b|st
   echo "ERROR: dynamic allocation in Vyom code (mark init-time allocations with '// vyom-alloc-ok: <reason>')"
   fail=1
 fi
-# 2. clang-tidy (only .c/.cpp with a compile command)
+# 2. clang-tidy with PX4's .clang-tidy config, on Vyom files that the given build compiles.
+#    Use the SITL build (as upstream PX4 does): NuttX board files are not in it and are covered
+#    by the allocation check above plus the cross-compile warnings of the board builds.
 if command -v clang-tidy >/dev/null && [ -f "$BUILD_DIR/compile_commands.json" ]; then
-  SRCS=(); for f in "${FILES[@]}"; do case "$f" in *.c|*.cpp) SRCS+=("$f");; esac; done
+  mapfile -t SRCS < <(python3 - "$BUILD_DIR/compile_commands.json" "${FILES[@]}" <<'PY'
+import json, os, sys
+db = {os.path.realpath(e["file"]) for e in json.load(open(sys.argv[1]))}
+for f in sys.argv[2:]:
+    if f.endswith((".c", ".cpp")) and os.path.realpath(f) in db:
+        print(f)
+PY
+)
+  echo "clang-tidy on ${#SRCS[@]} file(s) compiled in $BUILD_DIR"
   if [ "${#SRCS[@]}" -gt 0 ]; then
     clang-tidy -p "$BUILD_DIR" --quiet --warnings-as-errors='*' "${SRCS[@]}" || fail=1
   fi
