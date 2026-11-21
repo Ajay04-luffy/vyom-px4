@@ -35,13 +35,19 @@ param set-default CA_ROTOR1_KM 0.016
 param set-default MPC_THR_HOVER 0.40
 param set-default THR_MDL_FAC 0.3
 
-# --- Provisional rate gains (half of PX4 defaults; light, high-authority airframe). WP4 tunes
+# --- Rate gains: half of PX4 defaults (light, high-authority airframe). Kept in WP4: 1-2 % overshoot
 param set-default MC_ROLLRATE_P 0.08
 param set-default MC_PITCHRATE_P 0.08
 param set-default MC_ROLLRATE_I 0.1
 param set-default MC_PITCHRATE_I 0.1
 param set-default MC_ROLLRATE_D 0.0015
 param set-default MC_PITCHRATE_D 0.0015
+
+# --- Tuning baseline (WP4), from step-response sweeps on the sim model. Real values: tuning guide
+param set-default MC_ROLL_P 9.0
+param set-default MC_PITCH_P 9.0
+param set-default MPC_XY_VEL_P_ACC 2.5
+param set-default MPC_XY_VEL_I_ACC 2.0
 
 # --- Motors: DShot with RPM telemetry feeds the gyro dynamic notch (bit 0 = ESC RPM)
 param set-default DSHOT_BIDIR_EN 1

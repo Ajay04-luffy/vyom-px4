@@ -18,6 +18,9 @@ These only affect the simulator, not a real drone. They describe our sub-250 g X
 | `CA_ROTOR0..3_KM` | 0.05 | ±0.016 | Small-prop torque/thrust ratio, same as the sim model. TODO(verify) thrust stand |
 | `MPC_THR_HOVER` | 0.5 | 0.40 | 0.245 kg on 4 × 1.5 N. TODO(verify) after the first hover |
 | `THR_MDL_FAC` | 0.0 | 0.3 | Small props: thrust is closer to RPM² than linear. TODO(verify) thrust stand |
+| `MC_ROLL_P`, `MC_PITCH_P` | 6.5 | 9.0 | WP4: 15° attitude step rises in 0.20 s instead of 0.30 s with 1–2 % overshoot on the sim model; 12 was faster (0.14 s) but leaves less margin for real delays. See `tuning-guide.md` |
+| `MPC_XY_VEL_P_ACC` | 1.8 | 2.5 | WP4: with stock gains a 3 m/s step stalled at 80 % against the model's drag; 2.5/2.0 reaches it in 0.8–1.0 s without overshoot. TODO(verify) real drag |
+| `MPC_XY_VEL_I_ACC` | 0.4 | 2.0 | As `MPC_XY_VEL_P_ACC`; 3.0 overshot 9–19 % |
 | `EKF2_EV_CTRL` | 0 | 5 (horizontal position + velocity) | Fuse the SoC's visual odometry (WP3). Height stays on baro + ToF, yaw on the magnetometer until the SoC's VIO yaw is characterised. NEEDS-SW: revisit when the real VIO exists |
 | `EKF2_RNG_A_HMAX` | 5 m | 3.5 m | Use the down ToF for height only below 3.5 m (landing, low hover). TODO(verify) the ToF part's real range over grass and concrete (NEEDS-EE) |
 | `MC_ROLLRATE_P` / `MC_PITCHRATE_P` | 0.15 | 0.08 | Stock gains wobble the light model on the ground and block landing detection (WP0 finding). WP4 tunes |
