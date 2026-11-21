@@ -1,0 +1,25 @@
+module_name: Vyom SoC link
+serial_config:
+    - command: vyom_soc_link start -d ${SERIAL_DEV} -b p:${BAUD_PARAM}
+      port_config_param:
+        name: VYM_SOC_CFG
+        group: Vyom
+        description_extended: |
+            UART to the Vision SoC (Vyom /proto link). On core-v1 this is TELEM1 (USART2, 3 Mbaud, RTS/CTS).
+
+parameters:
+    - group: Vyom
+      definitions:
+        VYM_SOC_TOUT:
+            description:
+                short: SoC heartbeat timeout
+                long: |
+                    The SoC is declared lost (vyom_soc_status.soc_alive = false) when no valid
+                    heartbeat arrived for this long. The SoC sends heartbeats at 10 Hz.
+            type: float
+            unit: s
+            min: 0.2
+            max: 5.0
+            decimal: 2
+            increment: 0.05
+            default: 0.5

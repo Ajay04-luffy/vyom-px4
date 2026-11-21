@@ -1,0 +1,6 @@
+menuconfig DRIVERS_VYOM_SOC_LINK
+	bool "vyom_soc_link"
+	default y if PLATFORM_POSIX
+	---help---
+		Vyom FC<->Vision SoC link (/proto v0). Enabled by default on POSIX so SITL can run
+		the loopback tests without editing upstream board files.
