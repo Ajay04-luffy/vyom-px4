@@ -1,0 +1,6 @@
+menuconfig MODULES_VYOM_GNSS_SIM
+	bool "vyom_gnss_sim"
+	default y if PLATFORM_POSIX
+	depends on PLATFORM_POSIX
+	---help---
+		SIMULATION ONLY: GNSS receiver model with injectable jamming/spoofing faults.

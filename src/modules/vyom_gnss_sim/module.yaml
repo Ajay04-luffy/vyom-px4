@@ -1,0 +1,36 @@
+module_name: Vyom GNSS simulator (simulation only)
+parameters:
+    - group: Vyom simulation
+      definitions:
+        VYM_SIM_GF_MODE:
+            description:
+                short: Simulated GNSS fault
+                long: SIMULATION ONLY.
+            type: enum
+            values:
+                0: None
+                1: Step jump (MAG m)
+                2: Drift spoof (MAG m/s)
+                3: Jamming
+                4: Drift spoof flagged by receiver
+                5: Drift spoof with uniform C/N0
+            default: 0
+        VYM_SIM_GF_MAG:
+            description:
+                short: Simulated GNSS fault magnitude (m or m/s)
+                long: SIMULATION ONLY.
+            type: float
+            min: 0.0
+            max: 1000.0
+            decimal: 2
+            default: 50.0
+        VYM_SIM_GF_DIR:
+            description:
+                short: Simulated GNSS spoof direction
+                long: SIMULATION ONLY. Degrees from north.
+            type: float
+            unit: deg
+            min: 0.0
+            max: 360.0
+            decimal: 1
+            default: 90.0
