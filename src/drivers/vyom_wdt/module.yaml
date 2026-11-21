@@ -1,0 +1,16 @@
+module_name: Vyom external watchdog
+parameters:
+    - group: Vyom
+      definitions:
+        VYM_WDT_KICK_MS:
+            description:
+                short: External watchdog kick period
+                long: |
+                    Time between edges on the watchdog input. Must sit inside the watchdog part's
+                    window (TODO(verify) NEEDS-EE: part not chosen yet). Takes effect after reboot.
+            type: int32
+            unit: ms
+            min: 10
+            max: 1000
+            default: 100
+            reboot_required: true

@@ -1,0 +1,5 @@
+menuconfig DRIVERS_VYOM_WDT
+	bool "vyom_wdt"
+	default y if PLATFORM_POSIX
+	---help---
+		Vyom external watchdog kick (core-v1). Built on POSIX for the unit tests.
