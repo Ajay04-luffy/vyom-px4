@@ -18,6 +18,8 @@ These only affect the simulator, not a real drone. They describe our sub-250 g X
 | `CA_ROTOR0..3_KM` | 0.05 | ±0.016 | Small-prop torque/thrust ratio, same as the sim model. TODO(verify) thrust stand |
 | `MPC_THR_HOVER` | 0.5 | 0.40 | 0.245 kg on 4 × 1.5 N. TODO(verify) after the first hover |
 | `THR_MDL_FAC` | 0.0 | 0.3 | Small props: thrust is closer to RPM² than linear. TODO(verify) thrust stand |
+| `EKF2_EV_CTRL` | 0 | 5 (horizontal position + velocity) | Fuse the SoC's visual odometry (WP3). Height stays on baro + ToF, yaw on the magnetometer until the SoC's VIO yaw is characterised. NEEDS-SW: revisit when the real VIO exists |
+| `EKF2_RNG_A_HMAX` | 5 m | 3.5 m | Use the down ToF for height only below 3.5 m (landing, low hover). TODO(verify) the ToF part's real range over grass and concrete (NEEDS-EE) |
 | `MC_ROLLRATE_P` / `MC_PITCHRATE_P` | 0.15 | 0.08 | Stock gains wobble the light model on the ground and block landing detection (WP0 finding). WP4 tunes |
 | `MC_ROLLRATE_I` / `MC_PITCHRATE_I` | 0.2 | 0.1 | As above |
 | `MC_ROLLRATE_D` / `MC_PITCHRATE_D` | 0.003 | 0.0015 | As above |
@@ -52,3 +54,14 @@ These only affect the simulator, not a real drone. They describe our sub-250 g X
 | `VYM_SOC_CFG` | 0 (off) | `vyom_soc_link` | Serial port of the SoC link (core-v1 sets TELEM1) |
 | `VYM_SOC_TOUT` | 0.5 s | `vyom_soc_link` | No SoC heartbeat for this long = SoC lost (`vyom_soc_status.soc_alive`). SoC sends at 10 Hz, so 5 missed beats |
 | `VYM_WDT_KICK_MS` | 100 ms | `vyom_wdt` | External watchdog kick period. TODO(verify) against the watchdog part's window (NEEDS-EE) |
+| `VYM_GG_JUMP` | 5 m | `vyom_gnss_guard` | Reject GNSS when one 10 Hz step is this far from what the EKF (IMU) velocity explains |
+| `VYM_GG_VIO_POS` | 3 m | `vyom_gnss_guard` | Reject GNSS when its displacement over the last 10 s differs from the VIO displacement by more than this |
+| `VYM_GG_VIO_VEL` | 0.5 m/s | `vyom_gnss_guard` | Reject GNSS when its velocity (1 s low-pass) differs from VIO velocity by more than this |
+| `VYM_GG_RECOV` | 10 s | `vyom_gnss_guard` | Clean time before GNSS is accepted again (plus: within 3 m of the EKF with VIO, or landed without VIO) |
+
+## Simulation-only parameters (`vyom_gnss_sim`, never on a real board)
+| Param | Default | Meaning |
+|---|---|---|
+| `VYM_SIM_GF_MODE` | 0 | Injected GNSS fault: 1 jump, 2 drift spoof, 3 jamming, 4 drift spoof flagged by the receiver, 5 drift spoof with uniform C/N0 |
+| `VYM_SIM_GF_MAG` | 50 | Jump size (m) or drift speed (m/s) |
+| `VYM_SIM_GF_DIR` | 90° | Direction of the jump or drift, from north |

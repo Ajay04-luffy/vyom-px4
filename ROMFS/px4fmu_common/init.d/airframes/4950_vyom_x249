@@ -53,3 +53,8 @@ param set-default BAT1_N_CELLS 2
 
 # --- Small, light airframe: gentler descent near the ground
 param set-default MPC_LAND_SPEED 0.5
+
+# --- Estimator (WP3): fuse visual odometry from the SoC (horizontal position + velocity),
+# height on baro, down ToF below 3.5 m. GNSS integrity is checked by vyom_gnss_guard.
+param set-default EKF2_EV_CTRL 5
+param set-default EKF2_RNG_A_HMAX 3.5

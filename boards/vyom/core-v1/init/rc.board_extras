@@ -5,3 +5,6 @@
 
 # External watchdog: kicks only while gyro and rate controller are alive (vyom_wdt).
 vyom_wdt start
+
+# GNSS integrity monitor: jamming/spoofing flags, jumps, VIO cross-check (vyom_gnss_guard).
+vyom_gnss_guard start
