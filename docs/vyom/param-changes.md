@@ -9,5 +9,38 @@ These only affect the simulator, not a real drone. They describe our sub-250 g X
 |---|---|---|---|
 | see `/sim/models/vyom_x249.yaml` | | | Values and reasons are kept in that file so the simulator and this table cannot drift; CI prints them. |
 
-## Flight parameters
-None yet. Board ports (WP1) and tuning (WP4) add rows here.
+## Flight parameters: airframe `4950_vyom_x249` (all boards)
+`fw/flight/tools/check_airframe.py` (monorepo) checks that every flight param the sim model sets has the same value here, and that no sim-only or failsafe-disabling param is in this file.
+
+| Param | PX4 default | Ours | Reason |
+|---|---|---|---|
+| `CA_ROTOR0..3_PX/PY` | airframe-specific | ±0.088 m | Square X, 0.124 m centre to motor. TODO(verify) frame CAD |
+| `CA_ROTOR0..3_KM` | 0.05 | ±0.016 | Small-prop torque/thrust ratio, same as the sim model. TODO(verify) thrust stand |
+| `MPC_THR_HOVER` | 0.5 | 0.40 | 0.245 kg on 4 × 1.5 N. TODO(verify) after the first hover |
+| `THR_MDL_FAC` | 0.0 | 0.3 | Small props: thrust is closer to RPM² than linear. TODO(verify) thrust stand |
+| `MC_ROLLRATE_P` / `MC_PITCHRATE_P` | 0.15 | 0.08 | Stock gains wobble the light model on the ground and block landing detection (WP0 finding). WP4 tunes |
+| `MC_ROLLRATE_I` / `MC_PITCHRATE_I` | 0.2 | 0.1 | As above |
+| `MC_ROLLRATE_D` / `MC_PITCHRATE_D` | 0.003 | 0.0015 | As above |
+| `DSHOT_BIDIR_EN` | 0 | 1 | Our STM32G431 ESCs send RPM back (bidirectional DShot) |
+| `MOT_POLE_COUNT` | 14 | 12 | TODO(verify) motor part, NEEDS-EE |
+| `IMU_GYRO_DNF_EN` | 0 | 1 | Notch filter that follows the motor RPM: removes prop vibration from the gyro |
+| `BAT1_N_CELLS` | board default | 2 | 2S pack. TODO(verify) POWER_BUDGET.csv |
+| `MPC_LAND_SPEED` | 0.7 m/s | 0.5 m/s | Light airframe bounces at 0.7 m/s |
+
+## Board defaults: `boards/vyom/core-v1/init/rc.board_defaults`
+| Param | PX4 default | Ours | Reason |
+|---|---|---|---|
+| `SENS_EN_THERMAL` | -1 | 0 | No IMU heater on the board |
+| `EKF2_MULTI_IMU` | 0 | 2 | Two IMUs (BMI088 + ICM-42688-P): run one estimator per IMU and pick the healthy one |
+| `SENS_IMU_MODE` | 1 | 0 | Required by `EKF2_MULTI_IMU` > 0 |
+| `PWM_MAIN_TIM0` | 400 Hz PWM | -3 (DShot600) | ESCs speak DShot only |
+| `MAV_0_CONFIG` / `MAV_0_MODE` | TELEM1 / normal | 101 / onboard | MAVLink to the Vision SoC on USART2 until the `/proto` link replaces it (WP7) |
+| `SER_TEL1_BAUD` | 57600 | 3000000 | FC↔SoC UART runs at 3 Mbaud (CLAUDE.md) |
+| `SYS_DM_BACKEND` | 0 (file) | 1 (RAM) | No SD card; mission storage lives in RAM. NEEDS-SW: missions are lost on reboot |
+| `SDLOG_MODE` | 0 | -1 (off) | No SD card; flight logs stream to the SoC instead (WP7). NEEDS-SW |
+
+## Board defaults: `boards/vyom/proto0/init/rc.board_defaults` (ARK FPV)
+| Param | PX4 default | Ours | Reason |
+|---|---|---|---|
+| `MAV_0_MODE` | normal | 2 (onboard) | Companion computer link on TELEM1. TODO(verify) wiring |
+| `SER_TEL1_BAUD` | 57600 | 921600 | Companion link speed |
