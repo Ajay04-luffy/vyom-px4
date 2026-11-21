@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# Vyom core-v1 sensors (hw/drone-core/fc_pinmap.csv).
+#
+# Rotations (-R) are TODO(verify) NEEDS-EE: they depend on how each part is placed on the
+# drone-core layout and how the board sits in the frame. 0 = aligned with the body frame
+# (x forward, y right, z down). Fix them from the PCB placement before the first power-on.
+#------------------------------------------------------------------------------
+
+board_adc start
+
+# IMU A: Bosch BMI088 on SPI1 (accel + gyro dies, separate chip selects)
+bmi088 -A -R 0 -s -b 1 start
+bmi088 -G -R 0 -s -b 1 start
+
+# IMU B: TDK ICM-42688-P on SPI2 (own bus, so a stuck IMU A can't block it)
+icm42688p -R 0 -s -b 2 start
+
+# Barometer: Bosch BMP390 on internal I2C1 (bmp388 driver supports BMP390, chip id 0x60)
+bmp388 -I -b 1 start
+
+# Magnetometer: Bosch BMM350 on the GNSS module, external I2C2
+bmm350 -X -b 2 -R 0 start
+
+# Smart battery: SMBus fuel gauge on external I2C4. TODO(verify): the gauge MPN
+# (BOM says TI BQ40Z50 family) and its 7-bit address.
+batt_smbus -X -b 4 start
+
+# Down-facing ToF on I2C1: part not chosen yet (BOM core:U10 TODO). Driver added in WP2.

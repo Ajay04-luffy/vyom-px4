@@ -1,0 +1,13 @@
+{
+    "board_id": 6250,
+    "magic": "VYOMFWv1",
+    "description": "Firmware for the Vyom core-v1 flight controller",
+    "image": "",
+    "build_time": 0,
+    "summary": "VYOM_CORE_V1",
+    "version": "0.1",
+    "image_size": 0,
+    "image_maxsize": 1835008,
+    "git_identity": "",
+    "board_revision": 0
+}

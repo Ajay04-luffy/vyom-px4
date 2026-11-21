@@ -1,0 +1,27 @@
+#!/bin/sh
+#
+# Vyom core-v1 board defaults.
+#------------------------------------------------------------------------------
+
+# No IMU heater on this board (CLAUDE.md / prompt 03: heater off).
+param set-default SENS_EN_THERMAL 0
+
+# Two IMUs: let EKF2 run one instance per IMU and pick the healthiest.
+param set-default EKF2_MULTI_IMU 2
+param set-default SENS_IMU_MODE 0
+
+# Battery: the smart pack reports over SMBus (batt_smbus); the FC ADC (VBAT/IBAT) is a
+# cross-check. TODO(verify) NEEDS-EE: divider and shunt scale (board_config.h placeholders).
+
+# DShot600 on all four motor outputs (TIM1).
+param set-default PWM_MAIN_TIM0 -3
+
+# SoC link on USART2 (/dev/ttyS1, 3 Mbaud, RTS/CTS). Until vyom_soc_link (WP2) exists,
+# run MAVLink there in onboard mode so the SoC can already talk to the FC.
+param set-default MAV_0_CONFIG 101
+param set-default MAV_0_MODE 2
+param set-default SER_TEL1_BAUD 3000000
+
+# No SD card on the FC: missions in RAM, logging off until ULog streams to the SoC (WP9).
+param set-default SYS_DM_BACKEND 1
+param set-default SDLOG_MODE -1
