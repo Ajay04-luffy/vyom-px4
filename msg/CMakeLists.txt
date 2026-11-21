@@ -216,6 +216,7 @@ set(msg_files
 	TelemetryStatus.msg
 	TiltrotorExtraControls.msg
 	TimesyncStatus.msg
+	VyomGnssStatus.msg
 	VyomSocStatus.msg
 	TrajectorySetpoint6dof.msg
 	TransponderReport.msg

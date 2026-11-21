@@ -2427,6 +2427,19 @@ void EKF2::UpdateGpsSample(ekf2_timestamps_s &ekf2_timestamps)
 	// EKF GPS message
 	sensor_gps_s vehicle_gps_position;
 
+	// vyom: upstream-patch #3. An external GNSS integrity monitor (vyom_gnss_guard) can mark
+	// GNSS as spoofed. A stale verdict (> 1 s) is ignored, so a dead monitor cannot block GNSS.
+	vyom_gnss_status_s vyom_gnss_status;
+
+	if (_vyom_gnss_status_sub.update(&vyom_gnss_status)) {
+		_vyom_gnss_reject = vyom_gnss_status.reject;
+		_vyom_gnss_status_us = vyom_gnss_status.timestamp;
+	}
+
+	if (_vyom_gnss_reject && (hrt_elapsed_time(&_vyom_gnss_status_us) > 1_s)) {
+		_vyom_gnss_reject = false;
+	}
+
 	if (_vehicle_gps_position_sub.update(&vehicle_gps_position)) {
 
 		Vector3f vel_ned;
@@ -2468,7 +2481,8 @@ void EKF2::UpdateGpsSample(ekf2_timestamps_s &ekf2_timestamps)
 			.yaw = vehicle_gps_position.heading, //TODO: move to different message
 			.yaw_acc = vehicle_gps_position.heading_accuracy,
 			.yaw_offset = vehicle_gps_position.heading_offset,
-			.spoofed = vehicle_gps_position.spoofing_state == sensor_gps_s::SPOOFING_STATE_DETECTED,
+			.spoofed = (vehicle_gps_position.spoofing_state == sensor_gps_s::SPOOFING_STATE_DETECTED)
+			|| _vyom_gnss_reject, // vyom: upstream-patch #3
 		};
 
 		_ekf.setGpsData(gnss_sample);

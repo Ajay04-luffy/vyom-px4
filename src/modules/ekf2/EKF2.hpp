@@ -104,6 +104,7 @@
 #if defined(CONFIG_EKF2_GNSS)
 # include <uORB/topics/estimator_gps_status.h>
 # include <uORB/topics/sensor_gps.h>
+# include <uORB/topics/vyom_gnss_status.h> // vyom: upstream-patch #3
 #endif // CONFIG_EKF2_GNSS
 
 #if defined(CONFIG_EKF2_MAGNETOMETER)
@@ -459,6 +460,9 @@ private:
 	float _last_gnss_hgt_bias_published{};
 
 	uORB::Subscription _vehicle_gps_position_sub{ORB_ID(vehicle_gps_position)};
+	uORB::Subscription _vyom_gnss_status_sub{ORB_ID(vyom_gnss_status)}; // vyom: upstream-patch #3
+	bool _vyom_gnss_reject{false}; // vyom: upstream-patch #3
+	hrt_abstime _vyom_gnss_status_us{0}; // vyom: upstream-patch #3
 
 	uORB::PublicationMulti<estimator_bias_s> _estimator_gnss_hgt_bias_pub{ORB_ID(estimator_gnss_hgt_bias)};
 	uORB::PublicationMulti<estimator_gps_status_s> _estimator_gps_status_pub{ORB_ID(estimator_gps_status)};
