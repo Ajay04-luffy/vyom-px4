@@ -1,0 +1,55 @@
+#!/bin/sh
+#
+# @name Vyom X249 (sub-250 g camera quad)
+#
+# @type Quadrotor x
+# @class Copter
+#
+# @maintainer Vyom SW
+#
+
+. ${R}etc/init.d/rc.mc_defaults
+
+# Vyom sub-250 g X-quad airframe. EVERY value below is a starting point derived from the
+# estimated model in /sim/models/vyom_x249.yaml (monorepo). Real values come from the thrust
+# stand, mass/inertia measurements and WP4 tuning. Reasons for each change are listed in
+# docs/vyom/param-changes.md. Never put simulator-only params (SYS_FAILURE_EN, COM_RC_IN_MODE,
+# NAV_DLL_ACT, CBRK_*) in this file: fw/flight/tools/check_airframe.py (monorepo) enforces it.
+
+# --- Geometry: square X, centre-to-motor 0.124 m -> +/-0.088 m. TODO(verify) frame CAD
+param set-default CA_ROTOR_COUNT 4
+param set-default CA_ROTOR0_PX 0.088
+param set-default CA_ROTOR0_PY 0.088
+param set-default CA_ROTOR1_PX -0.088
+param set-default CA_ROTOR1_PY -0.088
+param set-default CA_ROTOR2_PX 0.088
+param set-default CA_ROTOR2_PY -0.088
+param set-default CA_ROTOR2_KM -0.016
+param set-default CA_ROTOR3_PX -0.088
+param set-default CA_ROTOR3_PY 0.088
+param set-default CA_ROTOR3_KM -0.016
+param set-default CA_ROTOR0_KM 0.016
+param set-default CA_ROTOR1_KM 0.016
+
+# --- Thrust: hover at ~40 % (0.245 kg, 4 x 1.5 N max). TODO(verify) after first hover
+param set-default MPC_THR_HOVER 0.40
+param set-default THR_MDL_FAC 0.3
+
+# --- Provisional rate gains (half of PX4 defaults; light, high-authority airframe). WP4 tunes
+param set-default MC_ROLLRATE_P 0.08
+param set-default MC_PITCHRATE_P 0.08
+param set-default MC_ROLLRATE_I 0.1
+param set-default MC_PITCHRATE_I 0.1
+param set-default MC_ROLLRATE_D 0.0015
+param set-default MC_PITCHRATE_D 0.0015
+
+# --- Motors: DShot with RPM telemetry feeds the gyro dynamic notch (bit 0 = ESC RPM)
+param set-default DSHOT_BIDIR_EN 1
+param set-default MOT_POLE_COUNT 12
+param set-default IMU_GYRO_DNF_EN 1
+
+# --- Battery: 2S smart pack. TODO(verify) cell count with EE (POWER_BUDGET.csv)
+param set-default BAT1_N_CELLS 2
+
+# --- Small, light airframe: gentler descent near the ground
+param set-default MPC_LAND_SPEED 0.5
