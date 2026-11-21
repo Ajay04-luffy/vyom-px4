@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# board specific defaults
+#------------------------------------------------------------------------------
+
+# transision from params file to flash-based params (2022-08)
+if [ -f $PARAM_FILE ]
+then
+	param load $PARAM_FILE
+	param save
+	# create a backup
+	mv $PARAM_FILE ${PARAM_FILE}.bak
+	reboot
+fi
+
+# TODO: Tune the following parameters
+param set-default SENS_EN_THERMAL 1
+param set-default SENS_IMU_TEMP 10.0
+#param set-default SENS_IMU_TEMP_FF 0.0
+#param set-default SENS_IMU_TEMP_I 0.025
+#param set-default SENS_IMU_TEMP_P 1.0
+
+if ver hwtypecmp ARKFPV000
+then
+	param set-default SENS_TEMP_ID 3014666
+fi
+
+param set-default BAT1_V_DIV 21.0
+
+param set-default RC_CRSF_PRT_CFG 300
+param set-default RC_SBUS_PRT_CFG 0
+
+param set-default UAVCAN_ESC_IFACE 1
+
+param set-default IMU_GYRO_DNF_EN 3
+
+# Single IMU
+param set-default EKF2_MULTI_IMU 0
+param set-default SENS_IMU_MODE 1
+
+#------------------------------------------------------------------------------
+# Vyom Phase 0 prototype (ARK FPV flight controller + VOXL 2 Mini companion).
+# Board hardware is unchanged from ark/fpv; only product defaults differ.
+# Airframe: select 4950_vyom_x249 (SYS_AUTOSTART 4950) after the first flash.
+#------------------------------------------------------------------------------
+
+# Companion link to VOXL 2 Mini: TODO(verify) which ARK FPV UART is wired to it
+# (prompt 11 wiring). TELEM1 (/dev/ttyS6) assumed, MAVLink instance 0 (default TELEM1) switched to onboard mode at 921600 baud.
+
+param set-default MAV_0_MODE 2
+param set-default SER_TEL1_BAUD 921600
