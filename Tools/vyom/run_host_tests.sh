@@ -15,4 +15,5 @@ build_run() {  # name, sources...
 }
 build_run SocLinkCoreTest -I src/drivers/vyom_soc_link src/drivers/vyom_soc_link/SocLinkCore.cpp src/drivers/vyom_soc_link/SocLinkCoreTest.cpp
 build_run WdtPolicyTest -I src/drivers/vyom_wdt src/drivers/vyom_wdt/WdtPolicyTest.cpp
+build_run GnssGuardTest -I src/modules/vyom_gnss_guard src/modules/vyom_gnss_guard/GnssGuard.cpp src/modules/vyom_gnss_guard/GnssGuardTest.cpp
 exit $fail

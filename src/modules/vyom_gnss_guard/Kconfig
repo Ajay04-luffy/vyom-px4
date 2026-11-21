@@ -1,0 +1,5 @@
+menuconfig MODULES_VYOM_GNSS_GUARD
+	bool "vyom_gnss_guard"
+	default y if PLATFORM_POSIX
+	---help---
+		Vyom GNSS integrity monitor (spoofing/jamming/jump/VIO consistency).

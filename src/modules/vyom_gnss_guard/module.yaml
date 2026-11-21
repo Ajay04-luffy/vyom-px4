@@ -1,0 +1,46 @@
+module_name: Vyom GNSS guard
+parameters:
+    - group: Vyom
+      definitions:
+        VYM_GG_JUMP:
+            description:
+                short: GNSS jump limit
+                long: A GNSS position step larger than this, not explained by the EKF velocity, rejects GNSS.
+            type: float
+            unit: m
+            min: 1.0
+            max: 50.0
+            decimal: 1
+            default: 5.0
+        VYM_GG_VIO_POS:
+            description:
+                short: GNSS vs visual odometry displacement limit
+                long: Over a 10 s window, GNSS and visual odometry displacements may differ by at most this.
+            type: float
+            unit: m
+            min: 0.5
+            max: 50.0
+            decimal: 1
+            default: 3.0
+        VYM_GG_VIO_VEL:
+            description:
+                short: GNSS vs visual odometry velocity limit
+                long: Low-pass filtered horizontal velocity difference above this rejects GNSS.
+            type: float
+            unit: m/s
+            min: 0.1
+            max: 5.0
+            decimal: 2
+            default: 0.5
+        VYM_GG_RECOV:
+            description:
+                short: GNSS recovery time
+                long: |
+                    After a rejection, GNSS is accepted again only after this long with no failing check
+                    and (with visual odometry) agreement with the EKF position, or on the ground.
+            type: float
+            unit: s
+            min: 1.0
+            max: 120.0
+            decimal: 1
+            default: 10.0

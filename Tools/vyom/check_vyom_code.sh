@@ -52,7 +52,7 @@ fi
 # 3. cppcheck
 if command -v cppcheck >/dev/null; then
   cppcheck --quiet --error-exitcode=1 --enable=warning,performance,portability --std=c++17 --inline-suppr \
-    -I src/drivers/vyom_soc_link -I src/drivers/vyom_wdt \
+    -I src/drivers/vyom_soc_link -I src/drivers/vyom_wdt -I src/modules/vyom_gnss_guard \
     $(printf '%s\n' "${FILES[@]}" | grep -E '^src/.*\.(c|cpp)$') || fail=1
 else
   echo "WARN: cppcheck missing; skipped (CI runs it)"
