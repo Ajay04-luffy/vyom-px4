@@ -1,0 +1,55 @@
+# Vyom CI for the PX4 fork. Upstream PX4 workflows are disabled in this repo's Actions settings
+# (they target PX4's infrastructure and would burn private-repo minutes); this is the only one on.
+name: vyom-ci
+
+on:
+  push:
+    branches: [vyom/main]
+  pull_request:
+    branches: [vyom/main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vyom-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+# Container: the same px4-dev image upstream v1.17.0 CI uses.
+jobs:
+  build:
+    name: build ${{ matrix.target }}
+    runs-on: ubuntu-24.04
+    container: px4io/px4-dev:v1.16.0-rc1-258-g0369abd556
+    strategy:
+      fail-fast: false
+      matrix:
+        # WP1 adds: vyom_proto0_default, vyom_core-v1_default
+        target: [px4_sitl_default]
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, submodules: recursive}
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: Build
+        run: make ${{ matrix.target }}
+      - name: Vyom code checks (no dynamic allocation, clang-tidy)
+        run: Tools/vyom/check_vyom_code.sh build/${{ matrix.target }}
+      - uses: actions/upload-artifact@v4
+        if: matrix.target == 'px4_sitl_default'
+        with:
+          name: px4_sitl_default
+          path: |
+            build/px4_sitl_default/bin
+            build/px4_sitl_default/etc
+          retention-days: 7
+
+  unit-tests:
+    name: PX4 unit tests
+    runs-on: ubuntu-24.04
+    container: px4io/px4-dev:v1.16.0-rc1-258-g0369abd556
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0, submodules: recursive}
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+      - name: make tests (upstream + Vyom unit tests)
+        run: make tests
